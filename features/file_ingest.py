@@ -9,11 +9,12 @@ class FileIngest:
         self._create_thumbnail_dir()
 
     def ingestFile(self, filepath):
+        """Ingest a file and return the DB ready tuple."""
         # (title, file_path, media_type, file_url, tags, thumbnail_path, duration)
-        split_file = filepath.split("\\")
+        filename = os.path.basename(filepath)
 
-        title = self.get_title(split_file)
-        media_type = self.get_mediaType(split_file)
+        title = self.get_title(filename)
+        media_type = self.get_mediaType(filename)
         file_url = None
         tags = None
 
@@ -31,7 +32,8 @@ class FileIngest:
             clip = VideoFileClip(filepath)
             duration = clip.duration
 
-            thumbnail_name = str(os.path.basename(filepath).replace("mp4", "png"))
+            base, _ = os.path.splitext(os.path.basename(filepath))
+            thumbnail_name = f"{base}.png"
             thumbnail_path = os.path.join(
                 self.thumbnail_dir,
                 thumbnail_name
@@ -47,20 +49,22 @@ class FileIngest:
 
     def _create_thumbnail_dir(self):
         if not os.path.isdir(self.thumbnail_dir):
-            os.mkdir(self.thumbnail_dir)
+            os.makedirs(self.thumbnail_dir, exist_ok=True)
 
     @staticmethod
-    def get_title(splitfile):
-        return splitfile[-1].split(".")[0]
+    def get_title(filename: str) -> str:
+        """Return the filename without its extension."""
+        return os.path.splitext(filename)[0]
 
     @staticmethod
-    def get_mediaType(splitfile):
-        extension = splitfile[-1].split(".")[1]
-        if extension in ["mp4"]: # Video Formats
+    def get_mediaType(filename: str) -> str:
+        """Return the media type based on file extension."""
+        extension = os.path.splitext(filename)[1].lstrip(".").lower()
+        if extension in ["mp4"]:  # Video Formats
             return "Video"
-        elif extension in ["gif"]: # Animated Formats
+        elif extension in ["gif"]:  # Animated Formats
             return "Animated"
-        elif extension in ["jpg", "png", "jpeg"]: # Image Formats
+        elif extension in ["jpg", "png", "jpeg"]:  # Image Formats
             return "Image"
         else:
             return "None"
