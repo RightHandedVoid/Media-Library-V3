@@ -113,10 +113,10 @@ class FileIngestWindow(QDialog):
 
         for i in range(0, len(existing_files)):             # "i" is our row
             for i2 in range(0, len(existing_files[i])):     # "i2" is our column
-                if i2 == 2:                                 # 2 is the Index of the File Path
-                    itemText = f".../{self.fileIngestController.shortenFilePath(
-                        str(existing_files[i][i2])
-                    )}"
+                if i2 == 2:  # 2 is the index of the File Path
+                    itemText = (
+                        f".../{self.fileIngestController.shortenFilePath(str(existing_files[i][i2]))}"
+                    )
 
                 else:
                     itemText = str(existing_files[i][i2])

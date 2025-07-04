@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QStackedWidget
 from PySide6.QtGui import QPixmap, Qt, QMovie
+import os
 
 from widgets.video_viewer import VideoViewer
 
@@ -84,11 +85,13 @@ class Viewer(QWidget):
     
     def updateMediaInfo(self):
         total_media = self.dbController.getTableDimensions()[0]
-        file_path = self.fileRow[2].split("\\")
-        file_path = "\\".join(file_path[-2:])
+        path_parts = self.fileRow[2].split(os.sep)
+        file_path = os.path.join(*path_parts[-2:])
 
-        self.mediaIndex.setText(f"File Index: {self.fileRow[0]} / {total_media}")
-        self.mediaPath.setText(f"File Path: ..\\{file_path}")
+        self.mediaIndex.setText(
+            f"File Index: {self.fileRow[0]} / {total_media}"
+        )
+        self.mediaPath.setText(f"File Path: ..{os.sep}{file_path}")
 
     def _displayImage(self):
         filepath = self.fileRow[2]
