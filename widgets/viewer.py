@@ -89,7 +89,7 @@ class Viewer(QWidget):
         file_path = os.path.join(*path_parts[-2:])
 
         self.mediaIndex.setText(
-            f"File Index: {self.fileRow[0]} / {total_media}"
+            f"File Index: {self.dbController.file_index} / {total_media}"
         )
         self.mediaPath.setText(f"File Path: ..{os.sep}{file_path}")
 

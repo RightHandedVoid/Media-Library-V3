@@ -3,6 +3,7 @@ from features.file_ingest import FileIngest
 
 
 import os
+import random
 
 
 class FileIngestController:
@@ -33,12 +34,19 @@ class DatabaseController:
     def __init__(self):
         self.db_instance = Database()
         self.file_index = 1
+        self.file_id_array = [row[0] for row in self.db_instance.fetch_all(f"SELECT * FROM {self.db_instance.db_table_name}")]
+
         self.file_index_minimum = 1
         self.file_index_maximum = self.getTableDimensions()[0]
 
+        self.shuffleMedia()
+
     def getMediaFile(self):
+        # Subtracting 1 from the file index to account for arrays starting at 0
+        file_id = self.file_id_array[self.file_index - 1]
+
         mediaArray = self.db_instance.fetch_all(f"""
-            SELECT * FROM {self.db_instance.db_table_name} WHERE id = {self.file_index} \
+            SELECT * FROM {self.db_instance.db_table_name} WHERE id = {file_id} \
         """)
 
         if len(mediaArray) == 0:
@@ -53,6 +61,18 @@ class DatabaseController:
         if len(media) == 0:
             return None
         return media[0]
+    
+    def shuffleMedia(self):
+        if len(self.file_id_array) > 0:
+            random.shuffle(self.file_id_array)
+
+    def goToFirstFile(self):
+        if self.file_index > self.file_index_minimum:
+            self.file_index = 1
+    
+    def goToLastFile(self):
+        if self.file_index < self.file_index_maximum:
+            self.file_index = self.file_index_maximum
 
     def incrementFileIndex(self):
         if self.file_index < self.file_index_maximum:

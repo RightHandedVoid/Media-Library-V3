@@ -1,14 +1,12 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem
 from PySide6.QtGui import Qt
 
-from controllers import FileIngestController, DatabaseController
-
 
 import easygui
 
 
 class FileIngestWindow(QDialog):
-    def __init__(self):
+    def __init__(self, dbController = None, fiController = None):
         super().__init__()
 
         # Class-wide Variables
@@ -25,12 +23,11 @@ class FileIngestWindow(QDialog):
         self.ingestedFileTable = None
 
         # Defining Other Classes
-        self.databaseController = None
-        self.fileIngestController = None
+        self.databaseController = dbController
+        self.fileIngestController = fiController
 
         # Initialization Functions
         self._initWindow()
-        self._initControllers()
         self._initLayout()
         self._initHeaderLayout()
         self._initBodyLayout()
@@ -43,10 +40,6 @@ class FileIngestWindow(QDialog):
         self.setWindowTitle("File Ingest Menu")
         self.setGeometry(100, 100, 600, 800)
         self.setModal(True)
-
-    def _initControllers(self):
-        self.databaseController = DatabaseController()
-        self.fileIngestController = FileIngestController()
 
     def _initLayout(self):
         self.mainLayout = QVBoxLayout()

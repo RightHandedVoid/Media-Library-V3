@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QWidget
 from PySide6.QtGui import Qt, QShortcut, QKeySequence
 
-from controllers import DatabaseController
+from controllers import DatabaseController, FileIngestController
 
 from views.file_ingest_window import FileIngestWindow
 
@@ -28,6 +28,7 @@ class MainWindow(QWidget):
 
         # Controllers
         self.dbController = DatabaseController()
+        self.fiController = FileIngestController()
 
         # Initialization Functions
         self._initWindow()
@@ -56,7 +57,7 @@ class MainWindow(QWidget):
         self.setLayout(self.mainLayout)
 
     def _initOtherWindows(self):
-        self.fileIngestWindow = FileIngestWindow()
+        self.fileIngestWindow = FileIngestWindow(self.dbController, self.fiController)
 
     def _initHeaderLayout(self):
         self.fileIngestButton = self._create_button(
@@ -91,6 +92,15 @@ class MainWindow(QWidget):
         increment_shortcut = QShortcut(QKeySequence("Right"), self)
         increment_shortcut.activated.connect(self._incrementMedia)
 
+        firstmedia_shortcut = QShortcut(QKeySequence("Down"), self)
+        firstmedia_shortcut.activated.connect(self._goToFirstMedia)
+
+        lastmedia_shortcut = QShortcut(QKeySequence("Up"), self)
+        lastmedia_shortcut.activated.connect(self._goToLastMedia)
+
+        shufflemedia_shortcut = QShortcut(QKeySequence("R"), self)
+        shufflemedia_shortcut.activated.connect(self._shuffleMedia)
+
     @staticmethod
     def _create_button(text, **kwargs):
         callback = kwargs.get("callback", None)
@@ -103,6 +113,18 @@ class MainWindow(QWidget):
     def _openFileIngestWindow(self):
         self.fileIngestWindow.open()
         self.fileIngestWindow.raise_()
+
+    def _shuffleMedia(self):
+        self.dbController.shuffleMedia()
+        self.viewer.refreshMedia()
+
+    def _goToFirstMedia(self):
+        self.dbController.goToFirstFile()
+        self.viewer.refreshMedia()
+    
+    def _goToLastMedia(self):
+        self.dbController.goToLastFile()
+        self.viewer.refreshMedia()
 
     def _decrementMedia(self):
         self.dbController.decrementFileIndex()
