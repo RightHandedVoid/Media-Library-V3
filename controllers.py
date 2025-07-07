@@ -20,13 +20,17 @@ class FileIngestController:
             for file in files:
                 if ".ini" in file:
                     continue
+
+                file_path = os.path.join(root, file)
             
                 if ".webp" in file:
-                    continue
-
-                db_items.append(
-                    self.file_ingest.ingestFile(os.path.join(root, file))
-                )
+                    self.file_ingest.ingestFile(file_path, webp=True)
+                
+                else:
+                    db_items.append(
+                        self.file_ingest.ingestFile(file_path)
+                    )
+                    
         return db_items
 
 
@@ -43,7 +47,10 @@ class DatabaseController:
 
     def getMediaFile(self):
         # Subtracting 1 from the file index to account for arrays starting at 0
-        file_id = self.file_id_array[self.file_index - 1]
+        if self.file_id_array:
+            file_id = self.file_id_array[self.file_index - 1]
+        else:
+            return
 
         mediaArray = self.db_instance.fetch_all(f"""
             SELECT * FROM {self.db_instance.db_table_name} WHERE id = {file_id} \

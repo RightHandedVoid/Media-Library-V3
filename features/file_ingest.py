@@ -8,9 +8,12 @@ class FileIngest:
 
         self._create_thumbnail_dir()
 
-    def ingestFile(self, filepath):
+    def ingestFile(self, filepath, webp=False):
         """Ingest a file and return the DB ready tuple."""
         # (title, file_path, media_type, file_url, tags, thumbnail_path, duration)
+        if webp:
+            return
+
         filename = os.path.basename(filepath)
 
         title = self.get_title(filename)
