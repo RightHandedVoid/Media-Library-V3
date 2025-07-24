@@ -6,7 +6,7 @@ import easygui
 
 
 class FileIngestWindow(QDialog):
-    def __init__(self, dbController = None, fiController = None):
+    def __init__(self, main_window = None, dbController = None, fiController = None):
         super().__init__()
 
         # Class-wide Variables
@@ -23,6 +23,7 @@ class FileIngestWindow(QDialog):
         self.ingestedFileTable = None
 
         # Defining Other Classes
+        self.main_window = main_window
         self.databaseController = dbController
         self.fileIngestController = fiController
 
@@ -74,19 +75,17 @@ class FileIngestWindow(QDialog):
 
     def _addDirectory(self):
         directory = easygui.diropenbox(title="Select a Directory", default="*")
-        created_dbItems = self.fileIngestController.iterateThroughDirectory(directory)
 
-        for item in created_dbItems:
-            self.databaseController.insertMediaFile(item)
+        if directory:
+            self.fileIngestController.ingestDirectory(directory)
 
         self._refreshTable()
 
     def _removeDirectory(self):
         directory = easygui.diropenbox(title="Select a Directory", default="*")
-        created_dbItems = self.fileIngestController.iterateThroughDirectory(directory)
-
-        for item in created_dbItems:
-            self.databaseController.removeMediaFile(item)
+        
+        if directory:
+            self.fileIngestController.ingestDirectory(directory, remove_dir=True)
 
         self._refreshTable()
 
@@ -95,18 +94,33 @@ class FileIngestWindow(QDialog):
 
         self._populateTable()
 
+        self.update()
+
+        self._finalizeWindow()
+        self.main_window._refreshViewer()
+
     def _populateTable(self):
         db_tableDimensions = self.databaseController.getTableDimensions()
         existing_files = self.databaseController.getAllMediaFiles()
+        db_columns = self.databaseController.db_instance.db_table_param_tags[1:] # this omits the ID, which is redundant with the table
 
         self.ingestedFileTable.setRowCount(db_tableDimensions[0])
-        self.ingestedFileTable.setColumnCount(db_tableDimensions[1])
+        self.ingestedFileTable.setColumnCount(db_tableDimensions[1] - 1) # Omit the ID value
+        self.ingestedFileTable.setHorizontalHeaderLabels(db_columns)
 
-        self.ingestedFileTable.setHorizontalHeaderLabels(self.databaseController.db_instance.db_table_param_tags)
-
-        for i in range(0, len(existing_files)):             # "i" is our row
-            for i2 in range(0, len(existing_files[i])):     # "i2" is our column
+        for i in range(0, len(existing_files) - 1):         # "i" is our row
+            for i2 in range(1, len(existing_files[i])):     # "i2" is our column
                 if i2 == 2:  # 2 is the index of the File Path
+                    itemText = (
+                        f".../{self.fileIngestController.shortenFilePath(str(existing_files[i][i2]))}"
+                    )
+                
+                elif i2 == 7:
+                    itemText = (
+                        f".../{self.fileIngestController.shortenFileHash(str(existing_files[i][i2]))}"
+                    )
+                
+                elif i2 == 8 and existing_files[i][i2]:
                     itemText = (
                         f".../{self.fileIngestController.shortenFilePath(str(existing_files[i][i2]))}"
                     )
@@ -117,6 +131,7 @@ class FileIngestWindow(QDialog):
                 tableItem = QTableWidgetItem()
                 tableItem.setText(itemText)
 
+                i2 -= 1 # Account for omitting the id value
                 self.ingestedFileTable.setItem(i, i2, tableItem)
 
         self.ingestedFileTable.resizeColumnsToContents()
@@ -132,6 +147,6 @@ class FileIngestWindow(QDialog):
             table_width += self.ingestedFileTable.verticalScrollBar().width()
 
         table_width += self.ingestedFileTable.frameWidth() * 2
-        table_width += 34
+        table_width += 36
 
         self.setFixedWidth(table_width)

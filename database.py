@@ -7,7 +7,7 @@ class Database:
         self.db_table_name = "media_files"
         self.db_table_param_tags = [
             "ID", "Title", "File Path", "Media Type",
-            "File URL", "Tags", "Date Added",
+            "File URL", "Tags", "Date Added", "File Hash",
             "Thumbnail Path", "Duration"
         ]
 
@@ -25,7 +25,8 @@ class Database:
                     media_type TEXT NOT NULL,
                     file_url TEXT,
                     tags TEXT,
-                    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    file_hash TEXT NOT NULL UNIQUE
                 )
             """)
             conn.commit()

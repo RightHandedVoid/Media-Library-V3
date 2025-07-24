@@ -13,8 +13,8 @@ class VideoViewer(QWidget):
         self.layout = QVBoxLayout(self)
 
         self.videoFile = row[2]
-        self.videoThumbnail = row[7]
-        self.videoDuration = row[8]
+        self.videoThumbnail = row[8]
+        self.videoDuration = row[9]
 
         self.default_volume = 10
         self.maximum_volume = 100

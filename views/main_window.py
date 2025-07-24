@@ -28,7 +28,7 @@ class MainWindow(QWidget):
 
         # Controllers
         self.dbController = DatabaseController()
-        self.fiController = FileIngestController()
+        self.fiController = FileIngestController(self.dbController)
 
         # Initialization Functions
         self._initWindow()
@@ -57,7 +57,7 @@ class MainWindow(QWidget):
         self.setLayout(self.mainLayout)
 
     def _initOtherWindows(self):
-        self.fileIngestWindow = FileIngestWindow(self.dbController, self.fiController)
+        self.fileIngestWindow = FileIngestWindow(self, self.dbController, self.fiController)
 
     def _initHeaderLayout(self):
         self.fileIngestButton = self._create_button(
@@ -109,6 +109,9 @@ class MainWindow(QWidget):
         button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         button.clicked.connect(callback)
         return button
+
+    def _refreshViewer(self):
+        self.viewer.refreshMedia()
 
     def _openFileIngestWindow(self):
         self.fileIngestWindow.open()
